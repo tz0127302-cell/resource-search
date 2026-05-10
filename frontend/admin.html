@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 白榆科技</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-login {
+            max-width: 400px;
+            margin: 80px auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .admin-login h2 { margin-bottom: 20px; font-size: 20px; }
+        .admin-login input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 12px;
+        }
+        .admin-login input:focus { border-color: #6366f1; }
+        .admin-login .error { color: #ef4444; font-size: 13px; margin-top: 8px; display: none; }
+        .admin-panel { display: none; }
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 16px 24px; border-radius: 12px;
+            margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .admin-header h2 { font-size: 18px; }
+        .btn-danger {
+            background: #ef4444; color: #fff; border: none;
+            padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;
+        }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success {
+            background: #22c55e; color: #fff; border: none;
+            padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
+        }
+        .btn-success:hover { background: #16a34a; }
+        .form-card {
+            background: #fff; border-radius: 12px; padding: 24px;
+            margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .form-card h3 { font-size: 16px; margin-bottom: 16px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        .form-card label { display: block; font-size: 13px; color: #64748b; margin-bottom: 4px; }
+        .form-card input, .form-card select, .form-card textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0;
+            border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 8px;
+        }
+        .form-card input:focus, .form-card select:focus, .form-card textarea:focus {
+            border-color: #6366f1;
+        }
+        .admin-table {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .admin-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .admin-table th {
+            background: #f8fafc; padding: 12px 16px; text-align: left;
+            font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;
+        }
+        .admin-table td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
+        .admin-table tr:hover td { background: #f8fafc; }
+        .admin-table .actions { display: flex; gap: 6px; }
+        .admin-table .actions button {
+            padding: 4px 12px; border-radius: 6px; border: none;
+            cursor: pointer; font-size: 12px;
+        }
+        .btn-edit { background: #eef2ff; color: #6366f1; }
+        .btn-edit:hover { background: #e0e7ff; }
+        .tag-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .back-link { margin-bottom: 16px; display: inline-block; font-size: 14px; }
+        .search-mini {
+            display: flex; gap: 8px; margin-bottom: 16px;
+        }
+        .search-mini input { flex: 1; padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; }
+        .search-mini input:focus { border-color: #6366f1; }
+        @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header style="padding:20px 0">
+        <div class="container" style="display:flex;justify-content:space-between;align-items:center">
+            <h1 style="font-size:20px;font-weight:700;color:#fff">白榆科技 - 后台管理</h1>
+            <a href="index.html" style="color:#a5b4fc;font-size:14px">← 返回前台</a>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top:30px">
+        <!-- Login -->
+        <div class="admin-login" id="loginBox">
+            <h2>🔐 管理员登录</h2>
+            <input type="password" id="passwordInput" placeholder="请输入管理密码" onkeydown="if(event.key==='Enter') login()">
+            <button class="btn-success" style="width:100%" onclick="login()">登录</button>
+            <div class="error" id="loginError">密码错误，请重试</div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div class="admin-panel" id="adminPanel">
+
+            <!-- Add Form -->
+            <div class="form-card" id="addForm">
+                <h3>➕ 添加新软件</h3>
+                <div class="form-grid">
+                    <div class="full"><label>软件名称</label><input id="fTitle" placeholder="如：PotPlayer 播放器"></div>
+                    <div class="full"><label>下载链接</label><input id="fUrl" placeholder="输入网盘链接或官网地址"></div>
+                    <div><label>资源类型</label>
+                        <select id="fType">
+                            <option value="netdisk">网盘下载</option>
+                            <option value="website">官网</option>
+                        </select>
+                    </div>
+                    <div><label>分类标签（逗号分隔）</label><input id="fTags" placeholder="如：媒体,播放器"></div>
+                    <div class="full"><label>描述</label><input id="fDesc" placeholder="简单介绍这款软件"></div>
+                </div>
+                <button class="btn-success" onclick="addResource()">添加</button>
+            </div>
+
+            <!-- Software List -->
+            <div class="admin-header">
+                <h2>📦 软件列表</h2>
+                <span id="listCount" style="color:#94a3b8;font-size:14px"></span>
+            </div>
+
+            <div class="search-mini">
+                <input id="filterInput" placeholder="筛选软件名称..." oninput="renderTable()">
+            </div>
+
+            <div class="admin-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px">ID</th>
+                            <th>名称</th>
+                            <th>分类</th>
+                            <th>类型</th>
+                            <th style="width:120px">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = "";
+        let TOKEN = "";
+        let allResources = [];
+
+        function login() {
+            TOKEN = document.getElementById("passwordInput").value.trim();
+            if (!TOKEN) return;
+            fetch(`${API_BASE}/api/admin/all?admin_token=${encodeURIComponent(TOKEN)}`)
+                .then(r => { if (!r.ok) throw new Error("密码错误"); return r.json(); })
+                .then(data => {
+                    document.getElementById("loginBox").style.display = "none";
+                    document.getElementById("adminPanel").style.display = "block";
+                    allResources = data.results;
+                    renderTable();
+                })
+                .catch(() => {
+                    document.getElementById("loginError").style.display = "block";
+                });
+        }
+
+        function renderTable() {
+            const q = (document.getElementById("filterInput").value || "").toLowerCase();
+            const filtered = allResources.filter(r => r.title.toLowerCase().includes(q));
+            document.getElementById("listCount").textContent = `共 ${filtered.length} 条`;
+            document.getElementById("tableBody").innerHTML = filtered.map(r => `
+                <tr>
+                    <td style="color:#94a3b8">${r.id}</td>
+                    <td><strong>${esc(r.title)}</strong></td>
+                    <td class="tag-cell">${esc(r.tags)}</td>
+                    <td><span class="badge badge-${r.resource_type}">${r.resource_type === 'netdisk' ? '网盘' : '官网'}</span></td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-edit" onclick="editResource(${r.id})">编辑</button>
+                            <button class="btn-danger" onclick="deleteResource(${r.id})">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function addResource() {
+            const title = document.getElementById("fTitle").value.trim();
+            const url = document.getElementById("fUrl").value.trim();
+            if (!title || !url) { alert("请填写名称和链接"); return; }
+            const type = document.getElementById("fType").value;
+            const tags = document.getElementById("fTags").value.trim();
+            const desc = document.getElementById("fDesc").value.trim();
+            const params = new URLSearchParams({ title, url, resource_type: type, tags, description: desc, admin_token: TOKEN });
+            fetch(`${API_BASE}/api/resources?${params}`, { method: "POST" })
+                .then(r => { if (!r.ok) throw new Error("添加失败"); return r.json(); })
+                .then(() => {
+                    document.getElementById("fTitle").value = "";
+                    document.getElementById("fUrl").value = "";
+                    document.getElementById("fTags").value = "";
+                    document.getElementById("fDesc").value = "";
+                    refreshList();
+                })
+                .catch(e => alert(e.message));
+        }
+
+        function editResource(id) {
+            const r = allResources.find(x => x.id === id);
+            if (!r) return;
+            const newTitle = prompt("软件名称：", r.title);
+            if (newTitle === null) return;
+            const newUrl = prompt("下载链接：", r.url);
+            if (newUrl === null) return;
+            const newTags = prompt("分类标签：", r.tags);
+            if (newTags === null) return;
+            const newDesc = prompt("描述：", r.description || "");
+            if (newDesc === null) return;
+            const params = new URLSearchParams({ title: newTitle, url: newUrl, tags: newTags || "", description: newDesc || "", admin_token: TOKEN });
+            fetch(`${API_BASE}/api/resources/${id}?${params}`, { method: "PUT" })
+                .then(r => { if (!r.ok) throw new Error("更新失败"); return r.json(); })
+                .then(() => refreshList())
+                .catch(e => alert(e.message));
+        }
+
+        function deleteResource(id) {
+            if (!confirm("确定删除这条记录吗？")) return;
+            fetch(`${API_BASE}/api/resources/${id}?admin_token=${encodeURIComponent(TOKEN)}`, { method: "DELETE" })
+                .then(r => { if (!r.ok) throw new Error("删除失败"); return r.json(); })
+                .then(() => refreshList())
+                .catch(e => alert(e.message));
+        }
+
+        function refreshList() {
+            fetch(`${API_BASE}/api/admin/all?admin_token=${encodeURIComponent(TOKEN)}`)
+                .then(r => r.json())
+                .then(data => { allResources = data.results; renderTable(); });
+        }
+
+        function esc(s) {
+            const d = document.createElement("div");
+            d.textContent = s || "";
+            return d.innerHTML;
+        }
+    </script>
+</body>
+</html>

@@ -128,6 +128,99 @@ def stats(db: Session = Depends(get_db)):
     }
 
 
+# ====== 后台管理 API ======
+
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "baiyu2026")
+
+
+def verify_admin(token: str = Query(...)):
+    if token != ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="管理员密码错误")
+    return True
+
+
+@app.post("/api/resources", response_model=ResourceResponse)
+def create_resource(
+    title: str = Query(...),
+    url: str = Query(...),
+    resource_type: str = Query("netdisk"),
+    tags: str = Query(""),
+    description: str = Query(""),
+    admin_token: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    verify_admin(admin_token)
+    res = Resource(
+        title=title,
+        url=url,
+        resource_type=resource_type,
+        tags=tags,
+        description=description,
+    )
+    db.add(res)
+    db.commit()
+    db.refresh(res)
+    return ResourceResponse.model_validate(res)
+
+
+@app.put("/api/resources/{resource_id}", response_model=ResourceResponse)
+def update_resource(
+    resource_id: int,
+    title: str = Query(None),
+    url: str = Query(None),
+    resource_type: str = Query(None),
+    tags: str = Query(None),
+    description: str = Query(None),
+    admin_token: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    verify_admin(admin_token)
+    r = db.query(Resource).filter(Resource.id == resource_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="资源不存在")
+    if title is not None:
+        r.title = title
+    if url is not None:
+        r.url = url
+    if resource_type is not None:
+        r.resource_type = resource_type
+    if tags is not None:
+        r.tags = tags
+    if description is not None:
+        r.description = description
+    db.commit()
+    db.refresh(r)
+    return ResourceResponse.model_validate(r)
+
+
+@app.delete("/api/resources/{resource_id}")
+def delete_resource(
+    resource_id: int,
+    admin_token: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    verify_admin(admin_token)
+    r = db.query(Resource).filter(Resource.id == resource_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="资源不存在")
+    db.delete(r)
+    db.commit()
+    return {"message": "已删除"}
+
+
+@app.get("/api/admin/all")
+def list_all(
+    admin_token: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    verify_admin(admin_token)
+    resources = db.query(Resource).order_by(Resource.created_at.desc()).all()
+    return {
+        "total": len(resources),
+        "results": [ResourceResponse.model_validate(r) for r in resources],
+    }
+
+
 # ====== 前端静态文件（放在最后，不干扰 API） ======
 app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
 
