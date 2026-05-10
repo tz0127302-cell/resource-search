@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资源搜索 - 发现实用资源</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🔗 资源搜索</h1>
+        <p>发现和检索网盘资源与实用网站</p>
+    </header>
+
+    <div class="search-section">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="输入关键词搜索资源..." autofocus>
+            <button id="searchBtn">搜索</button>
+        </div>
+        <div class="filter-bar">
+            <button class="active" data-type="">全部</button>
+            <button data-type="netdisk">网盘</button>
+            <button data-type="website">网址</button>
+        </div>
+    </div>
+
+    <main>
+        <div class="stats-bar" id="stats"></div>
+        <div class="results" id="results"></div>
+        <div class="pagination" id="pagination"></div>
+    </main>
+
+    <footer>
+        <p>资源搜索 - 聚合公开网络资源，仅供学习交流使用</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

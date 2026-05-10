@@ -1,0 +1,6 @@
+resources.db
+server.log
+__pycache__/
+*.pyc
+*.pyo
+.env
