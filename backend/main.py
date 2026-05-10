@@ -133,29 +133,31 @@ def stats(db: Session = Depends(get_db)):
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "baiyu2026")
 
 
-def verify_admin(token: str = Query(...)):
+def verify_admin(token: str):
     if token != ADMIN_TOKEN:
         raise HTTPException(status_code=403, detail="管理员密码错误")
     return True
 
 
+def ensure_url_scheme(url: str) -> str:
+    if not url.startswith(("http://", "https://")):
+        return "https://" + url
+    return url
+
+
 @app.post("/api/resources", response_model=ResourceResponse)
 def create_resource(
-    title: str = Query(...),
-    url: str = Query(...),
-    resource_type: str = Query("netdisk"),
-    tags: str = Query(""),
-    description: str = Query(""),
+    body: dict,
     admin_token: str = Query(...),
     db: Session = Depends(get_db),
 ):
     verify_admin(admin_token)
     res = Resource(
-        title=title,
-        url=url,
-        resource_type=resource_type,
-        tags=tags,
-        description=description,
+        title=body.get("title", ""),
+        url=ensure_url_scheme(body.get("url", "")),
+        resource_type=body.get("resource_type", "netdisk"),
+        tags=body.get("tags", ""),
+        description=body.get("description", ""),
     )
     db.add(res)
     db.commit()
@@ -166,11 +168,7 @@ def create_resource(
 @app.put("/api/resources/{resource_id}", response_model=ResourceResponse)
 def update_resource(
     resource_id: int,
-    title: str = Query(None),
-    url: str = Query(None),
-    resource_type: str = Query(None),
-    tags: str = Query(None),
-    description: str = Query(None),
+    body: dict,
     admin_token: str = Query(...),
     db: Session = Depends(get_db),
 ):
@@ -178,16 +176,16 @@ def update_resource(
     r = db.query(Resource).filter(Resource.id == resource_id).first()
     if not r:
         raise HTTPException(status_code=404, detail="资源不存在")
-    if title is not None:
-        r.title = title
-    if url is not None:
-        r.url = url
-    if resource_type is not None:
-        r.resource_type = resource_type
-    if tags is not None:
-        r.tags = tags
-    if description is not None:
-        r.description = description
+    if "title" in body:
+        r.title = body["title"]
+    if "url" in body:
+        r.url = ensure_url_scheme(body["url"])
+    if "resource_type" in body:
+        r.resource_type = body["resource_type"]
+    if "tags" in body:
+        r.tags = body["tags"]
+    if "description" in body:
+        r.description = body["description"]
     db.commit()
     db.refresh(r)
     return ResourceResponse.model_validate(r)

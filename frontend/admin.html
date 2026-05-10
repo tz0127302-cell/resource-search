@@ -200,8 +200,11 @@
             const type = document.getElementById("fType").value;
             const tags = document.getElementById("fTags").value.trim();
             const desc = document.getElementById("fDesc").value.trim();
-            const params = new URLSearchParams({ title, url, resource_type: type, tags, description: desc, admin_token: TOKEN });
-            fetch(`${API_BASE}/api/resources?${params}`, { method: "POST" })
+            fetch(`${API_BASE}/api/resources?admin_token=${encodeURIComponent(TOKEN)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, url, resource_type: type, tags, description: desc })
+            })
                 .then(r => { if (!r.ok) throw new Error("添加失败"); return r.json(); })
                 .then(() => {
                     document.getElementById("fTitle").value = "";
@@ -224,8 +227,11 @@
             if (newTags === null) return;
             const newDesc = prompt("描述：", r.description || "");
             if (newDesc === null) return;
-            const params = new URLSearchParams({ title: newTitle, url: newUrl, tags: newTags || "", description: newDesc || "", admin_token: TOKEN });
-            fetch(`${API_BASE}/api/resources/${id}?${params}`, { method: "PUT" })
+            fetch(`${API_BASE}/api/resources/${id}?admin_token=${encodeURIComponent(TOKEN)}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: newTitle, url: newUrl, tags: newTags || "", description: newDesc || "" })
+            })
                 .then(r => { if (!r.ok) throw new Error("更新失败"); return r.json(); })
                 .then(() => refreshList())
                 .catch(e => alert(e.message));
