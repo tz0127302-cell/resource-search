@@ -58,13 +58,14 @@ async function doSearch(page) {
     paginationEl.innerHTML = "";
 
     const params = new URLSearchParams();
-    if (q) params.set("q", q);
-    if (currentType) params.set("resource_type", "other");
-    if (q || currentType) {
-        if (q) params.set("q", q);
-        if (currentType) {
-            params.set("q", currentType);
-        }
+    if (q && currentType) {
+        // 既有搜索关键词，又选了分类 -> 搜索关键词，分类名也传给后端做参考
+        params.set("q", currentType);
+    } else if (q) {
+        params.set("q", q);
+    } else if (currentType) {
+        // 只选了分类 -> 用分类名搜索标签
+        params.set("q", currentType);
     }
     params.set("page", page);
     params.set("page_size", PAGE_SIZE);
