@@ -3,35 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>白榆科技 - 发现实用资源</title>
+    <title>白榆科技 - 发现好用软件</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>🔗 白榆科技</h1>
-        <p>发现和检索网盘资源与实用网站</p>
+        <div class="header-bg"></div>
+        <div class="container">
+            <div class="header-content">
+                <div class="site-info">
+                    <h1 class="site-title">白榆科技</h1>
+                    <p class="site-desc">分享真正好用的软件，帮你提升效率</p>
+                </div>
+                <div class="wechat-badge">
+                    <span class="wechat-icon">📢</span>
+                    <div>
+                        <span class="wechat-label">关注公众号</span>
+                        <span class="wechat-name">白榆科技</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <div class="search-section">
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="输入关键词搜索资源..." autofocus>
-            <button id="searchBtn">搜索</button>
+    <section class="intro">
+        <div class="container">
+            <p>我是白榆，一个实用软件爱好者。每款软件都亲自试过，觉得好用才分享。</p>
+            <div class="intro-tags">
+                <span>✅ 亲测可用</span>
+                <span>🔗 网盘直链</span>
+                <span>📝 附使用教程</span>
+            </div>
         </div>
-        <div class="filter-bar">
-            <button class="active" data-type="">全部</button>
-            <button data-type="netdisk">网盘</button>
-            <button data-type="website">网址</button>
+    </section>
+
+    <div class="search-section">
+        <div class="container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="搜索软件名称或类别..." autofocus>
+                <button id="searchBtn">搜索</button>
+            </div>
+            <div class="filter-bar" id="filterBar">
+                <button class="active" data-type="">全部</button>
+                <button data-type="办公">📄 办公</button>
+                <button data-type="设计">🎨 设计</button>
+                <button data-type="开发">💻 开发</button>
+                <button data-type="系统工具">🔧 系统工具</button>
+                <button data-type="媒体">🎵 媒体</button>
+                <button data-type="网络">🌐 网络</button>
+            </div>
         </div>
     </div>
 
-    <main>
+    <main class="container">
         <div class="stats-bar" id="stats"></div>
-        <div class="results" id="results"></div>
+        <div class="software-grid" id="results"></div>
         <div class="pagination" id="pagination"></div>
     </main>
 
     <footer>
-        <p>白榆科技 - 聚合公开网络资源，仅供学习交流使用</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>白榆科技</h3>
+                    <p>分享实用软件，提升工作效率</p>
+                </div>
+                <div class="footer-wechat">
+                    <p>📢 关注公众号：<strong>白榆科技</strong></p>
+                    <p class="footer-tip">后台回复软件名获取下载密码</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 白榆科技. 所有软件仅供学习交流使用.</p>
+            </div>
+        </div>
     </footer>
 
     <script src="app.js"></script>
