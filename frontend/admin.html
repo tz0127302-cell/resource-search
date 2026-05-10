@@ -119,7 +119,17 @@
                             <option value="website">官网</option>
                         </select>
                     </div>
-                    <div><label>分类标签（逗号分隔）</label><input id="fTags" placeholder="如：媒体,播放器"></div>
+                    <div><label>主分类</label>
+                        <select id="fCategory">
+                            <option value="办公">📄 办公</option>
+                            <option value="设计">🎨 设计</option>
+                            <option value="开发">💻 开发</option>
+                            <option value="系统工具">🔧 系统工具</option>
+                            <option value="媒体">🎵 媒体</option>
+                            <option value="网络">🌐 网络</option>
+                        </select>
+                    </div>
+                    <div class="full"><label>额外标签（可选，逗号分隔）</label><input id="fTags" placeholder="如：播放器,视频编辑"></div>
                     <div class="full"><label>描述</label><input id="fDesc" placeholder="简单介绍这款软件"></div>
                 </div>
                 <button class="btn-success" onclick="addResource()">添加</button>
@@ -198,7 +208,9 @@
             const url = document.getElementById("fUrl").value.trim();
             if (!title || !url) { alert("请填写名称和链接"); return; }
             const type = document.getElementById("fType").value;
-            const tags = document.getElementById("fTags").value.trim();
+            const category = document.getElementById("fCategory").value;
+            const extraTags = document.getElementById("fTags").value.trim();
+            const tags = extraTags ? category + "," + extraTags : category;
             const desc = document.getElementById("fDesc").value.trim();
             fetch(`${API_BASE}/api/resources?admin_token=${encodeURIComponent(TOKEN)}`, {
                 method: "POST",
@@ -219,18 +231,24 @@
         function editResource(id) {
             const r = allResources.find(x => x.id === id);
             if (!r) return;
+            const tags = (r.tags || "").split(",");
+            const currentCat = tags[0] || "";
+            const currentExtra = tags.slice(1).join(",");
             const newTitle = prompt("软件名称：", r.title);
             if (newTitle === null) return;
             const newUrl = prompt("下载链接：", r.url);
             if (newUrl === null) return;
-            const newTags = prompt("分类标签：", r.tags);
-            if (newTags === null) return;
+            const newCat = prompt("主分类（办公/设计/开发/系统工具/媒体/网络）：", currentCat);
+            if (newCat === null) return;
+            const newExtra = prompt("额外标签（逗号分隔）：", currentExtra);
+            if (newExtra === null) return;
+            const newTags = newExtra ? newCat + "," + newExtra : newCat;
             const newDesc = prompt("描述：", r.description || "");
             if (newDesc === null) return;
             fetch(`${API_BASE}/api/resources/${id}?admin_token=${encodeURIComponent(TOKEN)}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title: newTitle, url: newUrl, tags: newTags || "", description: newDesc || "" })
+                body: JSON.stringify({ title: newTitle, url: newUrl, tags: newTags, description: newDesc || "" })
             })
                 .then(r => { if (!r.ok) throw new Error("更新失败"); return r.json(); })
                 .then(() => refreshList())
